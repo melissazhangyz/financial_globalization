@@ -91,6 +91,36 @@ colnames(world_bank_saving) <- new_name
 
 head(world_bank_saving)
 
+#### Combine for modeling dataset ####
+USA_saving <- world_bank_saving %>% 
+  filter(Time >= 1982 & Time <= 2022) %>% 
+  select(USA)
+
+EAP_exclude <- world_bank_saving %>% 
+  filter(Time >= 1982 & Time <= 2022) %>% 
+  select(EAP_exclude)
+
+EAP <- world_bank_saving %>% 
+  filter(Time >= 1982 & Time <= 2022) %>% 
+  select(EAP)
+
+China_saving <- world_bank_saving %>% 
+  filter(Time >= 1982 & Time <= 2022) %>% 
+  select(China)
+
+Indonesia <- world_bank_saving %>% 
+  filter(Time >= 1982 & Time <= 2022) %>% 
+  select(Indonesia)
+
+model_data <- US_analysis_data %>% 
+  filter(DATE >= 1982 & DATE <= 2022) %>% 
+  select(-current_account, -private_saving) %>% 
+  mutate(USA_saving = USA_saving$USA,
+         EAP_exclude = EAP_exclude$EAP_exclude,
+         China_saving = China_saving$China,
+         Indonesia_saving = Indonesia$Indonesia)
+
 #### Save data set ####
 write_csv(US_analysis_data, "data/analysis_data/US_data.csv")
 write_xlsx(world_bank_saving, "data/analysis_data/world_bank_data.xlsx")
+write_csv(model_data, "data/analysis_data/model.csv")
