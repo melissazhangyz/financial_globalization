@@ -1,44 +1,92 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 6 April 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Cleans the raw data and combine into two dataset
+# Author: Yingzhi Zhang
+# Date: 6 April 2024 
+# Contact: yingzhi.zhang@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+
 
 #### Workspace setup ####
 library(tidyverse)
+library(readxl)
+library(lubridate)
 
-#### Clean data ####
-raw_data <- read_csv("inputs/data/plane_data.csv")
-
-cleaned_data <-
-  raw_data |>
-  janitor::clean_names() |>
-  select(wing_width_mm, wing_length_mm, flying_time_sec_first_timer) |>
-  filter(wing_width_mm != "caw") |>
+#### Processing US datase ####
+#1. Interest rate
+US_interest_rate <- read_csv("data/raw_data/US_interest_rate.csv")
+US_interest_rate <- US_interest_rate %>%
   mutate(
-    flying_time_sec_first_timer = if_else(flying_time_sec_first_timer == "1,35",
-                                   "1.35",
-                                   flying_time_sec_first_timer)
-  ) |>
-  mutate(wing_width_mm = if_else(wing_width_mm == "490",
-                                 "49",
-                                 wing_width_mm)) |>
-  mutate(wing_width_mm = if_else(wing_width_mm == "6",
-                                 "60",
-                                 wing_width_mm)) |>
-  mutate(
-    wing_width_mm = as.numeric(wing_width_mm),
-    wing_length_mm = as.numeric(wing_length_mm),
-    flying_time_sec_first_timer = as.numeric(flying_time_sec_first_timer)
-  ) |>
-  rename(flying_time = flying_time_sec_first_timer,
-         width = wing_width_mm,
-         length = wing_length_mm
-         ) |> 
-  tidyr::drop_na()
+    DATE = year(DATE),  
+    interest_rate = round(as.numeric(FEDFUNDS), 3) 
+  ) %>% 
+  select(DATE, interest_rate) %>% 
+  filter(DATE > 1959) %>% 
+  drop_na()
 
-#### Save data ####
-write_csv(cleaned_data, "outputs/data/analysis_data.csv")
+#2. GDP growth rate
+US_gdp_growth_rate <- read_csv("data/raw_data/US_gdp_growth_rate.csv")
+US_gdp_growth_rate <- US_gdp_growth_rate %>% 
+  mutate(
+    DATE = year(DATE),  
+    gdp_growth = round(as.numeric(GDP_PCH), 3) 
+  ) %>% 
+  select(DATE, gdp_growth) %>% 
+  filter(DATE > 1959) %>% 
+  drop_na()
+
+#3. unemployment rate
+US_unemployment_rate <- read_csv("data/raw_data/US_unemployment_rate.csv")
+US_unemployment_rate <- US_unemployment_rate %>% 
+  mutate(
+    DATE = year(DATE),  
+    unemployment_rate = round(as.numeric(UNRATE), 3)
+    ) %>% 
+  select(DATE, unemployment_rate) %>% 
+  filter(DATE > 1959) %>% 
+  drop_na()
+
+#4. private saving rate
+US_private_saving_rate <- read_csv("data/raw_data/US_private_saving_rate.csv")
+US_private_saving_rate <- US_private_saving_rate %>% 
+  mutate(
+    DATE = year(DATE),  
+    private_saving = round(as.numeric(PSAVERT), 3)
+  ) %>% 
+  select(DATE, private_saving) %>% 
+  filter(DATE > 1959) %>% 
+  drop_na()
+
+
+#5. current account
+US_current_account <- read_csv("data/raw_data/US_current_account.csv")
+US_current_account <- US_current_account %>% 
+  mutate(
+    DATE = year(DATE),  
+    current_account = round(as.numeric(NETFI), 3)
+  ) %>% 
+  select(DATE, current_account) %>% 
+  filter(DATE > 1959) %>% 
+  drop_na()
+
+#5. combine into one dataset
+US_analysis_data <-
+  US_interest_rate %>% 
+  mutate(gdp_growth = US_gdp_growth_rate$gdp_growth,
+         unemployment_rate = US_unemployment_rate$unemployment_rate,
+         private_saving = US_private_saving_rate$private_saving,
+         current_account = US_current_account$current_account)
+
+#### Processing world bank datase ####
+world_bank_saving <- read_xlsx("data/raw_data/gross_saving.xlsx")
+world_bank_saving <- world_bank_saving %>% 
+  select(-1,-2,-4) %>% 
+  mutate(Time = date(ISOdate(world_bank_saving$Time, 1, 1))) %>% 
+  mutate(across(-Time, ~round(as.numeric(replace(., . == "..", NA)), 3))) %>% 
+  select(last_col(), everything()) %>% 
+  mutate(Time = year(Time)) %>% 
+  slice(1:49)
+
+
+#### Save data set ####
+write_csv(US_analysis_data, "data/analysis_data/US_data.csv")
+write_xlsx(world_bank_pop, "data/analysis_data/world_bank_data.xlsx")
