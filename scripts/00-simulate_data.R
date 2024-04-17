@@ -18,7 +18,8 @@ data <-
   tibble(
     country = rep(country_name, times = 21),
     year = rep(1990:2010, each = 3),
-    saving_rate = runif(n=21*3, min=20, max=60)
+    saving_rate = runif(n=21*3, min=20, max=60),
+    interest_rate = runif(n=21*3, min=0, max=5)
   )
 
 
