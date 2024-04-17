@@ -80,13 +80,17 @@ US_analysis_data <-
 world_bank_saving <- read_xlsx("data/raw_data/gross_saving.xlsx")
 world_bank_saving <- world_bank_saving %>% 
   select(-1,-2,-4) %>% 
-  mutate(Time = date(ISOdate(world_bank_saving$Time, 1, 1))) %>% 
-  mutate(across(-Time, ~round(as.numeric(replace(., . == "..", NA)), 3))) %>% 
-  select(last_col(), everything()) %>% 
-  mutate(Time = year(Time)) %>% 
-  slice(1:49)
+  mutate(Time = year(date(ISOdate(world_bank_saving$Time, 1, 1)))) %>% 
+  mutate(across(-Time, ~round(as.numeric(replace(., . == "..", NA)), 3))) %>%
+  slice(1:49) 
 
+new_name <- c("Time", "USA", "World", "UK", "Brazil", "Canada", "China", "France", "Germany", "India",
+              "Indonesia", "Israel", "Japan", "Malaysia", "Mexico", "Philippines", "Singapore", "Thailand",
+              "Vietnam", "EAP_exclude", "EAP","EU","Middle_Income","Upper_Middle_Income")
+colnames(world_bank_saving) <- new_name
+
+head(world_bank_saving)
 
 #### Save data set ####
 write_csv(US_analysis_data, "data/analysis_data/US_data.csv")
-write_xlsx(world_bank_pop, "data/analysis_data/world_bank_data.xlsx")
+write_xlsx(world_bank_saving, "data/analysis_data/world_bank_data.xlsx")
