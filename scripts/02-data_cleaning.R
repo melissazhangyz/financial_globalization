@@ -23,7 +23,18 @@ US_interest_rate <- US_interest_rate %>%
   filter(DATE > 1959) %>% 
   drop_na()
 
-#2. GDP growth rate
+#2. Real GDP
+US_real_gdp <- read_csv("data/raw_data/US_real_gdp.csv")
+US_real_gdp <- US_real_gdp %>% 
+  mutate(
+    DATE = year(DATE),  
+    real_gdp = round(as.numeric(GDPC1), 3) 
+  ) %>% 
+  select(DATE, real_gdp) %>% 
+  filter(DATE > 1959) %>% 
+  drop_na()
+
+#3. GDP growth rate
 US_gdp_growth_rate <- read_csv("data/raw_data/US_gdp_growth_rate.csv")
 US_gdp_growth_rate <- US_gdp_growth_rate %>% 
   mutate(
@@ -34,7 +45,7 @@ US_gdp_growth_rate <- US_gdp_growth_rate %>%
   filter(DATE > 1959) %>% 
   drop_na()
 
-#3. unemployment rate
+#4. unemployment rate
 US_unemployment_rate <- read_csv("data/raw_data/US_unemployment_rate.csv")
 US_unemployment_rate <- US_unemployment_rate %>% 
   mutate(
@@ -45,7 +56,7 @@ US_unemployment_rate <- US_unemployment_rate %>%
   filter(DATE > 1959) %>% 
   drop_na()
 
-#4. private saving rate
+#5. private saving rate
 US_private_saving_rate <- read_csv("data/raw_data/US_private_saving_rate.csv")
 US_private_saving_rate <- US_private_saving_rate %>% 
   mutate(
@@ -57,7 +68,7 @@ US_private_saving_rate <- US_private_saving_rate %>%
   drop_na()
 
 
-#5. current account
+#6. current account
 US_current_account <- read_csv("data/raw_data/US_current_account.csv")
 US_current_account <- US_current_account %>% 
   mutate(
@@ -68,10 +79,11 @@ US_current_account <- US_current_account %>%
   filter(DATE > 1959) %>% 
   drop_na()
 
-#5. combine into one dataset
+#7. combine into one dataset
 US_analysis_data <-
   US_interest_rate %>% 
   mutate(gdp_growth = US_gdp_growth_rate$gdp_growth,
+         real_gdp = US_real_gdp$real_gdp,
          unemployment_rate = US_unemployment_rate$unemployment_rate,
          private_saving = US_private_saving_rate$private_saving,
          current_account = US_current_account$current_account)
