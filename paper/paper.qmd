@@ -1,5 +1,5 @@
 ---
-title: "An analysis of financial globalization: excess saving in East Asian and its effect in US interest rate"
+title: "An analysis of financial globalization: excess saving in East Asia and Pacific region and its effect in US interest rate"
 author: Yingzhi Zhang
 thanks: "Code and data are available at: https://github.com/melissazhangyz/financial_globalization."
 date: today
