@@ -1,7 +1,7 @@
 ---
 title: "An analysis of financial globalization: excess saving in East Asian and its effect in US interest rate"
 author: Yingzhi Zhang
-thanks: "Code and data are available at: https://github.com/melissazhangyz/east_asia_finance."
+thanks: "Code and data are available at: https://github.com/melissazhangyz/financial_globalization."
 date: today
 date-format: long
 abstract: "The United States has witnessed its interest rate with secular deline. While the influencing factors for interest rate are various, a focus on global excess saving has driven the discussion to the global financial market. Data suggests that, instead of US itself, insdutrializing countries in East Asia and Pacific (EAP) area are major contributor to the global saving glut. In this study, a multiple linear regressio model is tested using 40-years data to examine the correlation between US interest rate and gross saving rate in EAP. The statistical result suggests that as EAP countries increase there saving rate, US interest rate tend to decrease in a significant degree. "
@@ -253,7 +253,7 @@ tbl_model <-
 tbl_model
 ```
 
-
+@fig-model provides a visualized figure for the result of the model. As red colour suggest significancy, only gross saving rate in EAP countries present significant correlation. Also, the coefficient of the saving rate in EAP countries is the only negative coefficient, indicating the inverse relationship as explained in economic theories. The positive correlation between unemployment rate and interest rate is not explained in theory. However, such positive sign may be caused by the cyclical change of unemployment rate instead of a long-term trend.
 
 ```{r}
 #| echo: false
@@ -261,7 +261,7 @@ tbl_model
 #| warning: false
 #| message: false
 #| label: fig-model
-#| fig-cap: "Saving rate in different countries around the world"
+#| fig-cap: "Visualization of coefficient of mutiple linear regression model"
 #| fig-pos: H
 #| fig-width: 7
 #| fig-height: 3 
@@ -289,8 +289,15 @@ ggplot(tidy_model, aes(y = term, x = estimate, color = p.value < 0.05)) +
 
 ```
 
+In general, the statistical analysis supports the hypothesis that saving rate in Eastern Asia and Pacific area is strongly correlated with the US interest rate. This further implies that the global financial market is more integrated during the part 40 years as financial markets started to perform huge influence on each other. While benefits of the integration may include more direct investment, lower transaction cost and less asymmetric information, potential risk of globalized financial market also occurred such as the credit crisis in 2008 which did not stop within the US border.
 
 # Discussion {#sec-discussion}
+
+## Limitation
+The study presented here is constrained by a limited dataset, covering only 40 years of economic indicators since 1980. This temporal boundary is primarily due to the availability of saving rates data from the World Bank, which only extends back to this year. Data prior to 1980 contains NA datas for EAP region. Additionally, the focus on the period post-1980 is intentional, as it aligns with the broader onset of globalization following the conclusion of the Cold War, marking a new era in international economic dynamics. As the globalization pattern continues, we will have more data in the future to run the model, which provides us with higher credibility.
+
+## Future study
+This analysis is specifically designed to study the relationship between the United States and the East Asia and Pacific region, excluding high-income countries within that area. This selection was made to scrutinize the economic interactions based on the hypothesis regarding savings and interest rates. However, this does limit the generalizability of the findings across other rapidly industrializing regions and their interconnections with other industrialized nations. Future studies could broaden this scope to include a more diverse array of emerging economies, which could offer a more global perspective on the savings glut hypothesis and its influence on international interest rates. Some potential exploration include Middle East and Arabian region, Latin American region and South African region. By incorporating a wider spectrum of industrializing regions, subsequent research might uncover varied and complex economic patterns that could further enrich our understanding of global financial trends.
 
 \newpage
 
