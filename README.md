@@ -1,8 +1,8 @@
-# Data analysis of financial globalization: how excess saving in East Asia affect interest rate in US
+# An analysis of financial globalization: US and Eastern Asia and Pacific
 
 ## Overview
 
-This repo provides necessary materials for the data analysis of financial globalization.
+This repo provides necessary materials for the data analysis of financial globalization.The United States has witnessed its interest rate with secular deline. While the influencing factors for interest rate are various, a focus on global excess saving has driven the discussion to the global financial market. Data suggests that, instead of US itself, insdutrializing countries in East Asia and Pacific (EAP) area are major contributor to the global saving glut. In this study, a multiple linear regressio model is tested using 40-years data to examine the correlation between US interest rate and gross saving rate in EAP. The statistical result suggests that as EAP countries increase there saving rate, US interest rate tend to decrease in a significant degree.
 
 
 ## File Structure
