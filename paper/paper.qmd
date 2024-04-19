@@ -1,13 +1,20 @@
 ---
-title: "An analysis of financial globalization: how excess saving in East Asian affect US interest rate"
+title: "An analysis of financial globalization: excess saving in East Asian and its effect in US interest rate"
 author: Yingzhi Zhang
 thanks: "Code and data are available at: https://github.com/melissazhangyz/east_asia_finance."
 date: today
 date-format: long
-abstract: "TO BE UPDATED"
+abstract: "The United States has witnessed its interest rate with secular deline. While the influencing factors for interest rate are various, a focus on global excess saving has driven the discussion to the global financial market. Data suggests that, instead of US itself, insdutrializing countries in East Asia and Pacific (EAP) area are major contributor to the global saving glut. In this study, a multiple linear regressio model is tested using 40-years data to examine the correlation between US interest rate and gross saving rate in EAP. The statistical result suggests that as EAP countries increase there saving rate, US interest rate tend to decrease in a significant degree. "
 format: pdf
+header-includes: 
+- \usepackage{float}
+- \usepackage{amsmath}
+mainfont: Times New Roman
+sansfont: Times New Roman
 number-sections: true
 bibliography: references.bib
+toc: true
+toc-depth: 3
 ---
 
 ```{r}
@@ -18,25 +25,273 @@ bibliography: references.bib
 library(tidyverse)
 library(readxl)
 library(modelsummary)
+library(lubridate)
+library(kableExtra)
+library(patchwork)
+library(broom)
+library(gt)
+US_data <- read_csv(paste0(gsub("/paper", "", getwd()), "/data/analysis_data/US_data.csv"))
+world_bank_data <-read_xlsx(paste0(gsub("/paper", "", getwd()), "/data/analysis_data/world_bank_data.xlsx"))
+model_data <- read_csv(paste0(gsub("/paper", "", getwd()), "/data/analysis_data/model.csv"))
+model <- readRDS(paste0(gsub("/paper", "", getwd()), "/models/general_model.rds"))
 ```
 
-# Introduction
+\newpage
 
-# Data
+# Introduction {#sec-intro}
+The interest rate in the United States of America serves as a key economic indicator, significantly impacting financial markets worldwide. As the largest economy, shifts in the US interest rate can resonate a variety of effects internationally [@iacoviello2019foreign]. However, historical data reveal a persistent decline since the last peak before Great Depression in 1980. This concern has led to extensive discussion among economists about the primal cause. Some scholars attribute this downward trend to a slowdown in technological innovation and a lack of technological breakthrough, such as the second and third industrialization [@caballero2017rents]. Alternatively, examining this issue through the lens of economic dynamics provides another perspective, focusing on the equilibrium of the product, labour and monetary market. 
+
+Within the United States, several key economic indicators directly influence the setting of interest rates. Principal among these is the Gross Domestic Product (GDP). A higher GDP means increased productivity and heightened economic activity. More supply of goods usually drives up the prices, prompting the central bank to raise interest rates to temper inflation and stabilize the economy [@williamson2018macroeconomics]. Employment levels also play a critical role in influencing interest rates. High unemployment rate often implies underutilized economic capacity and can lead to decreased consumer spending, which even worsen the situation [@ribba2006joint]. In response, the central bank may lower interest rate to stimulate investment, and thereby supporting job creation and wage increases. Furthermore, saving rate is inversely correlated with interest rates. Higher aggregate savings within the economy typically increase the supply of loanable funds. Overheated fund market, consequently, is followed by excess saving, or a "saving glut" [@bofinger2017excess]. The invisible hand theorem of the money market states that interes rate would react by declining until reaching a new equilibrium level.
+
+The "Global Saving Glut" has attracted more attention in the recent years with the famous speach given by @bernanke2005global at the Federal Reserve Board. In his speech, Bernanke alerts that the huge current account deficit may cause unpredicted harm to the US economy. One plausible cause that he mentioned was the global saving glut. Within the past 50 years, the globe has exeprienced several huge financial crisis, including the 1980 great depression, 1998 Asian crisis and 2008 credit crisis. To hedge with the potential risk, more financial institutions started to adopt safer strategy by build up substantial reserves by buying US 10-year treasury [@bernanke2005global]. The target on the US market was primarily due to the long term liquidity of US dollar and the perceived safety of US investments. This surge in savings contributed to what Bernanke terms a "savings glut," which has exerted downward pressure on the US current account, and finally its interest rates. 
+
+As @bernanke2005global specifically mentioned in the speech, Asian market contributed significantly to the current account deficit of the United States. In 1998, multiple Asian economies was hit by speculative attack of the currency, including traumatic loss in the Hong Kong Hang Seng index and the Japanese Nikkei index. In the aftermath of their financial crisis, Asian economies significantly increased their holdings of US Treasury securities, a strategic move that aimed to bolster their US dollar reserves [@radelet1998east]. This massive purchase of US Treasuries by countries such as China, Japan, and South Korea has played a crucial role in keeping US interest rates at relatively low levels. Meanwhile, nations like China, Vietnam, and Japan have focused heavily on specializing and manufacturing goods for export primarily to the US market [@ekanayake1999exports]. The long-term imbalance in trade has exacerbated the US current account deficit to a massive degree. However, whether the excess saving the excess export continue to affect the US interest rate is ambiguous.
+ 
+In this study, I will conduct a data analysis to explore the correlation between US interest rate and the saving rate in East Asia and Pacific Area. In @sec-data, I will discuss the source of data for my dependent and independent variables and the process of data cleaning. I will also conduct Exploratory data analysis in this section. In @sec-model, I will explain in detail about the mutiple linear model I build to study the correlation in this paper. Then, I will present the result of the regression in table and in visualized figure in @sec-result. Finally, I will discuss the limitation and future study in @sec-discussion.
+
+
+# Data {#sec-data}
+
 ## Data sourcing
+To study the US interest rate, we need to include both internal and external influence. The data regarding the domestic economic trend in the US is downloaded from the website of Federal Reserve Bank of St. Louis. FRED is a rigorous online data platform for primarily US economic data, which is widely used in academic study in economics. From there I downloaded Federal Funds Effective Rate, unemployment rate, real Gross Domestic Product (GDP), GDP growth rate and current account balance [@interestrate].[^1] In general, I get five raw dataset for each rate where each contains at least 60 obervations for the past 60 years' data. Then, I obtained the data for saving rate from the World Bank dataset. I download the gross saving rate in percentage of GDP for the countries of interest, including USA and East Asia and Pacific (EAP) area excluding high income countries [@worldbank]. [^2] The raw data contains 55 columns and 27 rows where each columns represent a country or economic region and each row represent a year. I use R programming language for this study [@citeR]. The packages I use in this study includes “tidyverse” [@tidyverse], "readxl" [@readxl], "lubridate" [@lubridate], "parquetize" [@parquetize], "modelsummary" [@modelsummary], "kableExtra" [@kableextra], "patchwork" [@patchwork], "broom" [@broom] and "gt" [@gt].
+
+[^1]: Interest rate, unemployment rate are seasonally adjusted annual average rate. Real GDP is using 2017 USD as baseline discounting factor.
+
+[^2]: Countries included are:Cambodia, Chin, Fiji, Indonesia, Kiribati, Korea, Dem. People's Rep, Lao PDR, Malaysia, Marshall Islands, Micronesia, Fed. Sts, Mongolia, Myanmar, Palau, Papua New Guinea, Philippines, Samoa, Solomon Islands, Thailand, Timor-Leste, Tonga, Tuvaltu, Vanuatu and Viet Nam.
+
+I first combine the 5 dataset of the US data into one document. I filter for years after 1960 considering some data before was missing. For the world bank data, I omit data before 1982 due to the same reason. I round all the numeric data into 3 decimals only for simplicity. Finally, I generate two dataset for the forward study as shown in @tbl-usdata and @tbl-savingdata.
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: tbl-usdata
+#| tbl-cap: "First ten rows of the cleaned dataset for domestic economy in US"
+#| tbl-cap-location: bottom
+#| tbl-pos: H
+table01_data <- head(US_data, 10) %>% select(-private_saving)
+table01 <-
+  kable(table01_data, format = "latex", booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "scale_down"))
+
+table01
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: tbl-savingdata
+#| tbl-cap: "First ten rows of the cleaned dataset for saving rate"
+#| tbl-cap-location: bottom
+#| tbl-pos: H
+table02_data <- 
+  world_bank_data %>% 
+  filter(Time >= 1982) %>% 
+  select(1:10) %>% 
+  head(10)
+table02 <-
+  kable(table02_data, format = "latex", booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "scale_down"))
+
+table02
+```
 
 ## US Economy in the long run
+The exploratory data analysis (EDA) of key economic indicators provides insights into the historical trajectory of the US economy since 1960 as shown in @fig-USdata. The interest rate, depicted in blue, demonstrates notable volatility, with a peak in the early 1980s at about 15% followed by a general downtrend to about only 5% this year. The visualization of the interest rate data echoes with our intuition that US has experienced secular decline in interest rate in the long-run since the 80s. In parallel, the real GDP, shown with blue bars, exhibits a steady ascent indicative of overall economic growth (inflation is controlled), while the GDP growth rate, overlaid in red, oscillates, underscoring the cyclical nature of economic expansion and contraction. The growth rate of GDP suggests that the economy is growing slower with a 0% or negative rate in the recent years, supporting the trend of interest rate. The unemployment rate, charted in green, reveals the economy's response to various macroeconomic stimuli and policy changes, with peaks corresponding to economic downturns. The huge volitatily represents the economic and business cycle, which is natural to happen in a large economy like the US. Lastly, the current account balance, displayed in orange, has deepened into a deficit from the 1980s onwards, highlighting the growing gap between the value of goods and services the US imports versus exports. As observed, the cumulation of current account deficit is huge and rapid after 1980s from 0 to almost -1000 Billioin USD this year. The huge current account may easily end up with heavy debt of US central bank and economic recession.
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: fig-USdata
+#| fig-cap: "Major indicators of US economic development since since 1960"
+#| fig-pos: H
+#| fig-width: 7
+#| fig-height: 5
 
-## Economic development in East Asia and Pacific
+# Plot a: Interest Rate Line Graph
+US_p1 <- 
+  US_data %>% 
+  ggplot(aes(x = DATE, y = interest_rate)) +
+  geom_line(color = "blue", size = 1) +
+  labs(title = "Interest Rate", y = "Interest Rate (%)", x = "Year") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 10), 
+    axis.title = element_text(size = 8),  
+    axis.text = element_text(size = 6)   
+  )
+# theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+# scale_x_discrete(breaks = seq(1960, 2020, 10)) +  # Set breaks at every decade
 
-# Model
+# Plot b: Real GDP (Bar) and GDP Growth (Line) Combined Graph
+US_p2 <- 
+  US_data %>% 
+  ggplot() +
+  geom_bar(aes(x = DATE, y = real_gdp), stat = "identity", fill = "skyblue") +
+  geom_line(aes(x = DATE, y = gdp_growth * 1000), color = "red", size = 1) + 
+  labs(title = "Real GDP and GDP Growth", y = "Real GDP / GDP Growth (scaled)", x = "Year") +
+  scale_y_continuous(sec.axis = sec_axis(~./1000, name = "GDP Growth (%)")) +
+  theme_minimal() +  
+  theme(
+    plot.title = element_text(size = 10), 
+    axis.title = element_text(size = 8),  
+    axis.text = element_text(size = 6)   
+  )
 
-# Result
+# Plot c: Unemployment Rate Line Graph
+US_p3 <- 
+  US_data %>% 
+  ggplot(aes(x = DATE, y = unemployment_rate)) +
+  geom_line(color = "green4", size = 1) +
+  labs(title = "Unemployment Rate", y = "Unemployment Rate (%)", x = "Year") +
+  theme_minimal()+  
+  theme(
+    plot.title = element_text(size = 10), 
+    axis.title = element_text(size = 8),  
+    axis.text = element_text(size = 6)   
+  )
 
-# Discussion
+# Plot d: Current Account Bar Graph
+US_p4 <- 
+  US_data %>% 
+  ggplot(aes(x = DATE, y = current_account)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  labs(title = "Current Account Balance", y = "Current Account (Billions)", x = "Year") +
+  theme_minimal()+  
+  theme(
+    plot.title = element_text(size = 10), 
+    axis.title = element_text(size = 8),  
+    axis.text = element_text(size = 6)   
+  )
+
+# Combine the plots into a single panel
+(US_p1 + US_p2) / (US_p3 + US_p4)
+
+```
+
+## Global Saving Glut
+When studying the trend of global excess saving, I discover distinctive trend in US and Eastern Asian and Pacific Area (excluding high income countries) as shown in @fig-EAPdata. From the 1980s to the present, the saving rate in the United States has demonstrated relative stability with minor drop, maintaining a level notably lower at around 20%. Conversely, the EAP countries exhibits a marked upward trend post-1980, reaching its zenith in the early 2000s before displaying a slight but notable retraction. During the period of time, gross saving rate in EAP countries rise ten percentage points from about 30% to almost 40% currently. The disparity between the two curves underlines not only the contrast in domestic saving behaviors but also the broader economic strategies in monetary policy. In conclusion, the main contributor of the "global saving glut" is not industrialized countries like the US. Oppositely, the industriailizing world are the net saver during the rapid globalization era after the cold war.
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: fig-EAPdata
+#| fig-cap: "Gross Saving Rate in % of GDP in different countries around the world"
+#| fig-pos: H
+#| fig-width: 7
+#| fig-height: 3
+
+saving_p <- 
+  ggplot(data = world_bank_data) +
+  geom_line(aes(x = Time, y = USA, color = "USA"), size = 1) +
+  geom_line(aes(x = Time, y = EAP_exclude, color = "EAP_Industrializing"), size = 1) +
+  labs(title = "Saving Rate Over Time",
+       subtitle = "Comparison of USA and EAP",
+       x = "Year",
+       y = "Gross Saving Rate (% of GDP)",
+       color = "Region") +
+  scale_color_manual(values = c("USA" = "blue", "EAP_Industrializing" = "red")) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+saving_p
+
+```
+
+
+# Model {#sec-model}
+Combining our economic intuition and the result of exploratory data analysis, I have discovered negative correlation between US interest rate and gross saving rate in EAP industrialzing conutries. I build a multiple linear regression model to furthur study the degree and significancy of this correlation. The dependent variable of the model is the US effective interest rate. The independent variables include both domestic effect and international effect. There are three independent variables responsible for domestic effect accordingly to the three market connected with interest rate mentioned in @sec-introduction. In specific, they are GDP growth rate, unemployment rate and gross saving rate in US. Regarding international effect, I only focus the effect from EAP market for the specific research question in this study. Therefore, the only independent variable here is the gross saving rate of EAP industrializing countries. The euqation of the model is:
+
+\begin{equation}
+Y_i = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + \beta_4 X_4 + \varepsilon
+\end{equation}
+
+Where:
+\begin{itemize}
+  \item $X_1$ represents the GDP growth rate in the US.
+  \item $X_2$ represents the unemployment rate in the US.
+  \item $X_3$ represents the saving rate in the US.
+  \item $X_4$ represents the saving rate in the Eastern Asia and Pacific countries (excluding high-income countries).
+  \item $\beta_0$ is the intercept of the model.
+  \item $\beta_1, \beta_2, \beta_3, \text{and} \beta_4$ are the coefficients estimating the impact of each independent variable on the interest rate.
+  \item $\varepsilon$ is the error term, capturing the variation in interest rate not explained by the model.
+\end{itemize}
+
+The objective of the multiple linear regression analysis is to ascertain the coefficients for the intercept and predictors in a way that optimally aligns the model with the observed data, and to forecast the expected value of the US interest rate given different levels of economic indicators. The importance of each predictor's coefficient is evaluated using a t-test, which determines whether the estimated coefficient diverges significantly from zero. 
+
+# Result {#sec-result}
+@tbl-model summarizes the results of the multiple linear regression analysis using the past 41 years of data. In the table, we observe that the coefficient for the intercept is positive at 16.674, suggesting that the baseline level of the interest rate as what we observed in 1980 interest rate. The GDP growth is weakly correlated with interest rate positively, as shown with the coefficient of 0.247. This is to say that if the US GDP growth increase by 1 percentage point, the US interest rate is possibly increase by 0.247 percentage point accordingly. The coefficients for unemployment rate and US saving rate are also positive, recorded at 0.276 and 0.137 respectively. However p-values indicate they are not statistically significant at conventional levels. On the other hand, gross saving rate of EAP countries (excluding high income) has a negative coefficient of -0.461, which is statistically significant at the 0.001 level. More specifically, as EAP countries increase their gross saving rate by 1 percentage point, US interest rate is highly likely to decrease by 0.461 percentage point. The model's goodness-of-fit measures, including R-squared and adjusted R-squared, are moderately high, suggesting that a significant portion of the variability in the US interest rate is accounted for by the model.
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: tbl-model
+#| tbl-cap: "Result of multiple linear regression model"
+#| tbl-cap-location: bottom
+#| tbl-pos: H
+
+tbl_model <-msummary(model, output = "kableExtra", stars = TRUE)
+tbl_model <-
+  tbl_model %>% 
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"), 
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  column_spec(1, bold = TRUE, border_right = TRUE) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  footnote(
+    general = "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1",
+    general_title = "Note: ", 
+    symbol = "Significance levels:"
+  )
+tbl_model
+```
+
+
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: fig-model
+#| fig-cap: "Saving rate in different countries around the world"
+#| fig-pos: H
+#| fig-width: 7
+#| fig-height: 3 
+
+# Assuming 'model' is already fitted
+# model <- lm(interest_rate ~ gdp_growth + unemployment_rate + USA_saving + EAP_exclude, data = data)
+
+# Step 1: Extract Coefficients and Confidence Intervals
+tidy_model <- tidy(model, conf.int = TRUE) %>% 
+  filter(term != "(Intercept)") 
+
+# Step 2: Create the Coefficient Plot
+ggplot(tidy_model, aes(y = term, x = estimate, color = p.value < 0.05)) +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2, color = ifelse(tidy_model$p.value < 0.05, "red", "black")) +
+  scale_color_manual(values = c("true" = "red", "false" = "black"), guide = FALSE) +
+  labs(x = "Estimate", y = "Variables", title = "Effect Sizes with 95% Confidence Intervals") +
+  theme_minimal() +
+  theme(
+    axis.title.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
+
+
+```
+
+
+# Discussion {#sec-discussion}
 
 \newpage
 
 # Reference
-
-# Discussion
