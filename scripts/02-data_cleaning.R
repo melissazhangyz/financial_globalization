@@ -10,6 +10,7 @@
 library(tidyverse)
 library(readxl)
 library(lubridate)
+library(parquetize)
 
 #### Processing US datase ####
 #1. Interest rate
@@ -133,6 +134,9 @@ model_data <- US_analysis_data %>%
          Indonesia_saving = Indonesia$Indonesia)
 
 #### Save data set ####
+write_parquet_at_once(US_analysis_data, "data/analysis_data/US_data.parquet")
 write_csv(US_analysis_data, "data/analysis_data/US_data.csv")
 write_xlsx(world_bank_saving, "data/analysis_data/world_bank_data.xlsx")
+write_parquet_at_once(world_bank_data, "data/analysis_data/world_bank_data.parquet")
+write_parquet_at_once(model_data, "data/analysis_data/model.parquet")
 write_csv(model_data, "data/analysis_data/model.csv")
